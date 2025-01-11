@@ -71,8 +71,8 @@ output_type = st.selectbox("Select Output Type", ["chat", "json"])
 input_type = st.selectbox("Select Input Type", ["chat", "text"])
 
 # Allow customization of tweaks
-#tweaks_input = st.text_area("Enter any tweaks (JSON format):", json.dumps(TWEAKS))
-#tweaks = json.loads(tweaks_input)
+tweaks_input = st.text_area("Enter any tweaks (JSON format):", json.dumps(TWEAKS))
+tweaks = json.loads(tweaks_input)
 
 # Allow submission
 if st.button("Run Query"):
