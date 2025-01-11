@@ -57,7 +57,7 @@ def run_flow(message: str,
         return f"Error: {response.status_code}, {response.text}"
 
 # Streamlit interface
-st.title("🎈 Doorsharp Retail AI Agent")
+st.title("Doorsharp Retail AI Agent")
 st.write("Ask about the latest collections or insights from brands like Ralph Lauren, Jimmy Choo, Michael Kors, and Nordstrom Rack.")
 
 # User input
