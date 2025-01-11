@@ -131,10 +131,11 @@ def main():
                 tweaks=tweaks,
                 application_token=application_token
             )
-response_text = "### Raw Response\n" + json.dumps(response, indent=4)
-chatbot_reply = {
-    "response": response_text
-}
+
+            # Debugging: Print raw response
+            st.write("### Raw Response")
+            st.json(response)
+
             # Extract assistant's message from the response
             if "response" in response:
                 assistant_message = response["response"]
@@ -151,7 +152,7 @@ chatbot_reply = {
             st.error(f"An unexpected error occurred: {e}")
 
     st.write("---")
-    #st.caption("Powered by Langflow")
+    st.caption("Powered by Langflow")
 
 if __name__ == "__main__":
     main()
