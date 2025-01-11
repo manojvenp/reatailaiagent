@@ -6,6 +6,8 @@ st.write(
 )
 # Note: Replace **<YOUR_APPLICATION_TOKEN>** with your actual Application token
 
+# Note: Replace **<YOUR_APPLICATION_TOKEN>** with your actual Application token
+
 import argparse
 import json
 from argparse import RawTextHelpFormatter
@@ -20,18 +22,23 @@ except ImportError:
 
 BASE_API_URL = "https://api.langflow.astra.datastax.com"
 LANGFLOW_ID = "0796338d-92cd-42ee-bb7f-16374bf023a1"
-FLOW_ID = "92baaca1-5991-49ba-a756-e15232ca8777"
+FLOW_ID = "ebbc7577-5d82-46b0-86a2-d09ed87f5899"
 APPLICATION_TOKEN = "AstraCS:ccwhFzZJoQbwKEhbUOfUAOpS:87a102c2427e13b2e47bda8d3cef3e64560c4805886be5f100af165fb468bc91"
 ENDPOINT = "https://3b0dfb4d-199d-4ec9-893d-515833aa113f-westus3.apps.astra.datastax.com" # You can set a specific endpoint name in the flow settings
 
 # You can tweak the flow by adding a tweaks dictionary
 # e.g {"OpenAI-XXXXX": {"model_name": "gpt-4"}}
 TWEAKS = {
-  "ChatInput-cmtYv": {},
-  "CSVAgent-2w2T1": {},
-  "OpenAIModel-Cyo9k": {},
-  "ChatOutput-AFgrz": {},
-  "CSVAgent-OPFGv": {}
+  "Prompt-m9oac": {},
+  "ChatInput-7oqin": {},
+  "ChatOutput-fFbtg": {},
+  "Prompt-yPzh9": {},
+  "TavilyAISearch-Otsxw": {},
+  "OpenAIModel-mQvNb": {},
+  "OpenAIModel-qyNbj": {},
+  "Agent-Nj0pH": {},
+  "Prompt-ntUg4": {},
+  "Prompt-aQnEf": {}
 }
 
 def run_flow(message: str,
