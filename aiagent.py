@@ -36,9 +36,10 @@ def run_flow(
     input_type: str = "chat",
     tweaks: Optional[dict] = None,
     application_token: Optional[str] = None
-) -> dict:
+) -> str:
     """
     Run a flow with a given message and optional tweaks.
+    Returns the AI response message as a string.
     """
     api_url = f"{BASE_API_URL}/lf/{LANGFLOW_ID}/api/v1/run/{endpoint}"
     payload = {
@@ -58,10 +59,10 @@ def run_flow(
     try:
         response = requests.post(api_url, json=payload, headers=headers)
         response.raise_for_status()  # Raise an HTTPError for bad responses
-        return response.json()
+        data = response.json()
+        return data.get("response", "I'm sorry, I couldn't process your request.")
     except requests.RequestException as e:
-        st.error(f"Error during API request: {e}")
-        return {"error": str(e)}
+        return f"Error during API request: {e}"
 
 # Streamlit Chatbot App
 def main():
@@ -116,14 +117,8 @@ def main():
                     tweaks=tweaks
                 )
 
-            # Debugging: Print details of the request
-            st.write("### Debug Info")
-            st.write(f"Endpoint: {endpoint}")
-            st.write(f"Tweaks: {tweaks}")
-            st.write(f"Message: {user_message}")
-
-            # Run flow
-            response = run_flow(
+            # Run flow and get assistant response
+            assistant_message = run_flow(
                 message=user_message,
                 endpoint=endpoint,
                 output_type="chat",
@@ -132,27 +127,16 @@ def main():
                 application_token=application_token
             )
 
-            # Debugging: Print raw response
-            st.write("### Raw Response")
-            st.json(response)
+            # Add assistant's response to the chat history
+            st.session_state["messages"].append({"role": "assistant", "content": assistant_message})
 
-            # Extract assistant's message from the response
-            if "response" in response:
-                assistant_message = response["response"]
-                st.session_state["messages"].append({"role": "assistant", "content": assistant_message})
-            else:
-                error_message = response.get("error", "No valid response received.")
-                st.session_state["messages"].append({"role": "assistant", "content": error_message})
-
-        except requests.HTTPError as e:
-            st.error(f"HTTP error occurred: {e}")
         except json.JSONDecodeError:
             st.error("Invalid JSON format in Tweaks.")
         except Exception as e:
             st.error(f"An unexpected error occurred: {e}")
 
     st.write("---")
-    st.caption("Powered by Langflow")
+  #  st.caption("Powered by Langflow")
 
 if __name__ == "__main__":
     main()
