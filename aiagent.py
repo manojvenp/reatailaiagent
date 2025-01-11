@@ -58,7 +58,7 @@ def run_flow(
     response.raise_for_status()  # Raise an HTTPError for bad responses
     return response.json()
 
-# Streamlit App
+# Streamlit Chatbot App
 def main():
     st.title("Langflow Chatbot")
     st.sidebar.title("Settings")
@@ -70,65 +70,70 @@ def main():
     
     uploaded_file = st.sidebar.file_uploader("Upload File (optional)")
     components = st.sidebar.text_input("Components for File Upload (comma-separated)")
-    
-    # Main chat interface
-    st.subheader("Chat with Langflow")
-    chat_history = st.session_state.get("chat_history", [])
-    user_input = st.text_area("Your Message", key="user_input")
-    
-    if st.button("Send"):
-        if not user_input.strip():
-            st.warning("Please enter a message before sending.")
-        else:
-            try:
-                # Parse tweaks
-                tweaks = json.loads(tweaks_input)
-                
-                # Handle file upload if applicable
-                if uploaded_file:
-                    if not upload_file:
-                        st.error("Langflow is not installed. Please install it to use the upload_file function.")
-                        return
-                    if not components:
-                        st.error("You need to provide components to upload the file.")
-                        return
-                    tweaks = upload_file(
-                        file_path=uploaded_file,
-                        host=BASE_API_URL,
-                        flow_id=FLOW_ID,
-                        components=components.split(","),
-                        tweaks=tweaks
-                    )
-                
-                # Run flow
-                response = run_flow(
-                    message=user_input,
-                    endpoint=endpoint,
-                    output_type="chat",
-                    input_type="chat",
-                    tweaks=tweaks,
-                    application_token=application_token
+
+    # Initialize chat history
+    if "messages" not in st.session_state:
+        st.session_state["messages"] = []
+
+    # Display chat history
+    for message in st.session_state["messages"]:
+        if message["role"] == "user":
+            st.markdown(f"**You:** {message['content']}")
+        elif message["role"] == "assistant":
+            st.markdown(f"**Assistant:** {message['content']}")
+
+    # Input form
+    with st.form("chat_form", clear_on_submit=True):
+        user_message = st.text_area("Your message:", key="input_message", placeholder="Type your message here...")
+        submit_button = st.form_submit_button("Send")
+
+    if submit_button and user_message.strip():
+        # Add user's message to the chat history
+        st.session_state["messages"].append({"role": "user", "content": user_message})
+
+        try:
+            # Parse tweaks
+            tweaks = json.loads(tweaks_input)
+
+            # Handle file upload if applicable
+            if uploaded_file:
+                if not upload_file:
+                    st.error("Langflow is not installed. Please install it to use the upload_file function.")
+                    return
+                if not components:
+                    st.error("You need to provide components to upload the file.")
+                    return
+                tweaks = upload_file(
+                    file_path=uploaded_file,
+                    host=BASE_API_URL,
+                    flow_id=FLOW_ID,
+                    components=components.split(","),
+                    tweaks=tweaks
                 )
 
-                # Extract response and append to chat history
-                ai_response = response.get("response", "I'm sorry, I didn't understand that.")
-                chat_history.append({"user": user_input, "ai": ai_response})
-                st.session_state["chat_history"] = chat_history
-                st.success("Message sent successfully!")
-            
-            except requests.HTTPError as e:
-                st.error(f"HTTP error occurred: {e}")
-            except json.JSONDecodeError:
-                st.error("Invalid JSON format in Tweaks.")
-            except Exception as e:
-                st.error(f"An error occurred: {e}")
-    
-    # Display chat history
-    if chat_history:
-        for entry in chat_history:
-            st.markdown(f"**You:** {entry['user']}")
-            st.markdown(f"**AI:** {entry['ai']}")
-            st.markdown("---")
+            # Run flow
+            response = run_flow(
+                message=user_message,
+                endpoint=endpoint,
+                output_type="chat",
+                input_type="chat",
+                tweaks=tweaks,
+                application_token=application_token
+            )
+
+            # Extract assistant's message from the response
+            assistant_message = response.get("response", "Sorry, I couldn't process your request.")
+            st.session_state["messages"].append({"role": "assistant", "content": assistant_message})
+
+        except requests.HTTPError as e:
+            st.error(f"HTTP error occurred: {e}")
+        except json.JSONDecodeError:
+            st.error("Invalid JSON format in Tweaks.")
+        except Exception as e:
+            st.error(f"An error occurred: {e}")
+
+    st.write("---")
+    st.caption("Powered by Langflow")
 
 if __name__ == "__main__":
     main()
