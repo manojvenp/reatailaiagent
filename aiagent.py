@@ -54,9 +54,14 @@ def run_flow(
             "Authorization": f"Bearer {application_token}",
             "Content-Type": "application/json"
         }
-    response = requests.post(api_url, json=payload, headers=headers)
-    response.raise_for_status()  # Raise an HTTPError for bad responses
-    return response.json()
+
+    try:
+        response = requests.post(api_url, json=payload, headers=headers)
+        response.raise_for_status()  # Raise an HTTPError for bad responses
+        return response.json()
+    except requests.RequestException as e:
+        st.error(f"Error during API request: {e}")
+        return {"error": str(e)}
 
 # Streamlit Chatbot App
 def main():
@@ -111,6 +116,12 @@ def main():
                     tweaks=tweaks
                 )
 
+            # Debugging: Print details of the request
+            st.write("### Debug Info")
+            st.write(f"Endpoint: {endpoint}")
+            st.write(f"Tweaks: {tweaks}")
+            st.write(f"Message: {user_message}")
+
             # Run flow
             response = run_flow(
                 message=user_message,
@@ -121,19 +132,27 @@ def main():
                 application_token=application_token
             )
 
+            # Debugging: Print raw response
+            st.write("### Raw Response")
+            st.json(response)
+
             # Extract assistant's message from the response
-            assistant_message = response.get("response", "Sorry, I couldn't process your request.")
-            st.session_state["messages"].append({"role": "assistant", "content": assistant_message})
+            if "response" in response:
+                assistant_message = response["response"]
+                st.session_state["messages"].append({"role": "assistant", "content": assistant_message})
+            else:
+                error_message = response.get("error", "No valid response received.")
+                st.session_state["messages"].append({"role": "assistant", "content": error_message})
 
         except requests.HTTPError as e:
             st.error(f"HTTP error occurred: {e}")
         except json.JSONDecodeError:
             st.error("Invalid JSON format in Tweaks.")
         except Exception as e:
-            st.error(f"An error occurred: {e}")
+            st.error(f"An unexpected error occurred: {e}")
 
     st.write("---")
-    st.caption("Powered by Langflow")
+    #st.caption("Powered by Langflow")
 
 if __name__ == "__main__":
     main()
