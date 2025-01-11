@@ -84,7 +84,14 @@ if run_query:
             tweaks=tweaks,
             application_token=APPLICATION_TOKEN,
         )
-        st.subheader("Response")
-        st.json(response)
+
+        # Extract AI message from the response
+        ai_message = response.get("output", {}).get("response", "No response received.")
+        
+        # Display the AI response in a chat-like interface
+        st.subheader("Chat")
+        st.markdown(f"**You:** {message}")
+        st.markdown(f"**AI:** {ai_message}")
+
     except Exception as e:
         st.error(f"An error occurred: {e}")
