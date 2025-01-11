@@ -61,18 +61,18 @@ def run_flow(
         st.error(f"Error during API request: {e}")
         return {"error": str(e)}
 
-# Streamlit Chatbot App with Agent Feature
+# Streamlit Chatbot App
 def main():
-    st.title(" Chatbot with Agent")
-    #st.sidebar.title("Settings")
+    st.title("Langflow Chatbot")
+    st.sidebar.title("Settings")
 
     # Sidebar inputs
-   # application_token = st.sidebar.text_input("Application Token", APPLICATION_TOKEN, type="password")
-   # endpoint = st.sidebar.text_input("Endpoint", ENDPOINT or FLOW_ID)
-    #tweaks_input = st.sidebar.text_area("Tweaks (JSON)", json.dumps(TWEAKS, indent=2))
+    application_token = st.sidebar.text_input("Application Token", APPLICATION_TOKEN, type="password")
+    endpoint = st.sidebar.text_input("Endpoint", ENDPOINT or FLOW_ID)
+    tweaks_input = st.sidebar.text_area("Tweaks (JSON)", json.dumps(TWEAKS, indent=2))
     
-    #uploaded_file = st.sidebar.file_uploader("Upload File (optional)")
-    #components = st.sidebar.text_input("Components for File Upload (comma-separated)")
+    uploaded_file = st.sidebar.file_uploader("Upload File (optional)")
+    components = st.sidebar.text_input("Components for File Upload (comma-separated)")
 
     # Initialize chat history
     if "messages" not in st.session_state:
@@ -88,7 +88,6 @@ def main():
     # Input form
     with st.form("chat_form", clear_on_submit=True):
         user_message = st.text_area("Your message:", key="input_message", placeholder="Type your message here...")
-        agent_action = st.checkbox("Enable Agent Action", value=False)
         submit_button = st.form_submit_button("Send")
 
     if submit_button and user_message.strip():
@@ -111,7 +110,7 @@ def main():
                     file_path=uploaded_file,
                     host=BASE_API_URL,
                     flow_id=FLOW_ID,
-                    components=components.split(","),  # Components specified
+                    components=components.split(","),
                     tweaks=tweaks
                 )
 
@@ -138,8 +137,6 @@ def main():
             # Extract assistant's message from the response
             if "response" in response:
                 assistant_message = response["response"]
-                if agent_action:
-                    assistant_message += " (Agent action triggered)"
                 st.session_state["messages"].append({"role": "assistant", "content": assistant_message})
             else:
                 error_message = response.get("error", "No valid response received.")
