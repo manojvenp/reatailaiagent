@@ -131,11 +131,10 @@ def main():
                 tweaks=tweaks,
                 application_token=application_token
             )
-
-            # Debugging: Print raw response
-            st.write("### Raw Response")
-            st.json(response)
-
+response_text = "### Raw Response\n" + json.dumps(response, indent=4)
+chatbot_reply = {
+    "response": response_text
+}
             # Extract assistant's message from the response
             if "response" in response:
                 assistant_message = response["response"]
