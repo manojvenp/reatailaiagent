@@ -30,13 +30,13 @@ def run_flow(message: str,
   output_type: str = "chat",
   input_type: str = "chat",
   tweaks: Optional[dict] = None,
-  application_token: Optional[str] = None) -> dict:
+  application_token: Optional[str] = None) -> str:
     """
     Run a flow with a given message and optional tweaks.
     :param message: The message to send to the flow
     :param endpoint: The ID or the endpoint name of the flow
     :param tweaks: Optional tweaks to customize the flow
-    :return: The JSON response from the flow
+    :return: The AI message response
     """
     api_url = f"{BASE_API_URL}/lf/{LANGFLOW_ID}/api/v1/run/{endpoint}"
 
@@ -51,7 +51,15 @@ def run_flow(message: str,
     if application_token:
         headers = {"Authorization": "Bearer " + application_token, "Content-Type": "application/json"}
     response = requests.post(api_url, json=payload, headers=headers)
-    return response.json()
+    
+    # Check if the response is successful and extract the AI response message
+    if response.status_code == 200:
+        data = response.json()
+        # Assuming the message is under a key like 'message' or similar, you need to inspect the actual response structure.
+        ai_message = data.get("message", "No response message found.")
+        return ai_message
+    else:
+        return f"Error: {response.status_code}, {response.text}"
 
 # Streamlit interface
 st.title("🎈 Doorsharp Retail AI Agent")
@@ -69,5 +77,6 @@ tweaks = json.loads(tweaks_input)
 # Allow submission
 if st.button("Run Query"):
     # Optionally pass in a custom application token
-    response = run_flow(message=message, endpoint=FLOW_ID, output_type=output_type, input_type=input_type, tweaks=tweaks, application_token=APPLICATION_TOKEN)
-    st.json(response)
+    ai_message_response = run_flow(message=message, endpoint=FLOW_ID, output_type=output_type, input_type=input_type, tweaks=tweaks, application_token=APPLICATION_TOKEN)
+    st.write("AI Message Response:")
+    st.write(ai_message_response)
