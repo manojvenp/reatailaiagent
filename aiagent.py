@@ -16,7 +16,7 @@ except ImportError:
 BASE_API_URL = "https://api.langflow.astra.datastax.com"
 LANGFLOW_ID = "0796338d-92cd-42ee-bb7f-16374bf023a1"
 FLOW_ID = "64da80f1-f6b7-4fb0-9ecc-6375e25a2f26"
-APPLICATION_TOKEN = "AstraCS:XZMZtCrqmsamDKgvLcIweqot:cd533b4dd371118bc3e07fc54f1255abd4c6a8935fe137d7f1133f6c361f74f9"  # Replace with your application token
+APPLICATION_TOKEN = "<YOUR_APPLICATION_TOKEN>"  # Replace with your application token
 ENDPOINT = ""  # Default to FLOW_ID if not set
 
 # Default tweaks
@@ -60,7 +60,7 @@ def run_flow(
 
 # Streamlit App
 def main():
-    st.title("Langflow API Interaction")
+    st.title("Langflow Chatbot")
     st.sidebar.title("Settings")
 
     # Sidebar inputs
@@ -71,57 +71,64 @@ def main():
     uploaded_file = st.sidebar.file_uploader("Upload File (optional)")
     components = st.sidebar.text_input("Components for File Upload (comma-separated)")
     
-    # Main inputs
-    st.subheader("Run Flow")
-    message = st.text_area("Message to Send", "")
-    output_type = st.selectbox("Output Type", ["chat", "text", "json"], index=0)
-    input_type = st.selectbox("Input Type", ["chat", "text"], index=0)
-
-    if st.button("Run Flow"):
-        try:
-            # Parse tweaks
-            tweaks = json.loads(tweaks_input)
-            
-            # Handle file upload if applicable
-            if uploaded_file:
-                if not upload_file:
-                    st.error("Langflow is not installed. Please install it to use the upload_file function.")
-                    return
-                if not components:
-                    st.error("You need to provide components to upload the file.")
-                    return
-                tweaks = upload_file(
-                    file_path=uploaded_file,
-                    host=BASE_API_URL,
-                    flow_id=FLOW_ID,
-                    components=components.split(","),
-                    tweaks=tweaks
+    # Main chat interface
+    st.subheader("Chat with Langflow")
+    chat_history = st.session_state.get("chat_history", [])
+    user_input = st.text_area("Your Message", key="user_input")
+    
+    if st.button("Send"):
+        if not user_input.strip():
+            st.warning("Please enter a message before sending.")
+        else:
+            try:
+                # Parse tweaks
+                tweaks = json.loads(tweaks_input)
+                
+                # Handle file upload if applicable
+                if uploaded_file:
+                    if not upload_file:
+                        st.error("Langflow is not installed. Please install it to use the upload_file function.")
+                        return
+                    if not components:
+                        st.error("You need to provide components to upload the file.")
+                        return
+                    tweaks = upload_file(
+                        file_path=uploaded_file,
+                        host=BASE_API_URL,
+                        flow_id=FLOW_ID,
+                        components=components.split(","),
+                        tweaks=tweaks
+                    )
+                
+                # Run flow
+                response = run_flow(
+                    message=user_input,
+                    endpoint=endpoint,
+                    output_type="chat",
+                    input_type="chat",
+                    tweaks=tweaks,
+                    application_token=application_token
                 )
+
+                # Extract response and append to chat history
+                ai_response = response.get("response", "I'm sorry, I didn't understand that.")
+                chat_history.append({"user": user_input, "ai": ai_response})
+                st.session_state["chat_history"] = chat_history
+                st.success("Message sent successfully!")
             
-            # Run flow
-            response = run_flow(
-                message=message,
-                endpoint=endpoint,
-                output_type=output_type,
-                input_type=input_type,
-                tweaks=tweaks,
-                application_token=application_token
-            )
-
-            # Display result in message format
-            if 'response' in response:
-                st.success("Flow executed successfully!")
-                st.write(f"**Response Message:** {response['response']}")
-            else:
-                st.warning("Flow executed, but no 'response' field found.")
-                st.json(response)
-
-        except requests.HTTPError as e:
-            st.error(f"HTTP error occurred: {e}")
-        except json.JSONDecodeError:
-            st.error("Invalid JSON format in Tweaks.")
-        except Exception as e:
-            st.error(f"An error occurred: {e}")
+            except requests.HTTPError as e:
+                st.error(f"HTTP error occurred: {e}")
+            except json.JSONDecodeError:
+                st.error("Invalid JSON format in Tweaks.")
+            except Exception as e:
+                st.error(f"An error occurred: {e}")
+    
+    # Display chat history
+    if chat_history:
+        for entry in chat_history:
+            st.markdown(f"**You:** {entry['user']}")
+            st.markdown(f"**AI:** {entry['ai']}")
+            st.markdown("---")
 
 if __name__ == "__main__":
     main()
