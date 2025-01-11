@@ -60,7 +60,14 @@ def run_flow(
         response = requests.post(api_url, json=payload, headers=headers)
         response.raise_for_status()  # Raise an HTTPError for bad responses
         data = response.json()
-        return data.get("response", "I'm sorry, I couldn't process your request.")
+        
+        # Extract the AI message from the JSON response
+        if "response" in data:
+            return data["response"]  # Return the main response if available
+        elif "result" in data:
+            return data["result"]  # Fallback to another key if necessary
+        else:
+            return "I received an unexpected response format. Please check your flow or API settings."
     except requests.RequestException as e:
         return f"Error during API request: {e}"
 
