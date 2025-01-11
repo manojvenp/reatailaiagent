@@ -16,7 +16,7 @@ except ImportError:
 BASE_API_URL = "https://api.langflow.astra.datastax.com"
 LANGFLOW_ID = "0796338d-92cd-42ee-bb7f-16374bf023a1"
 FLOW_ID = "64da80f1-f6b7-4fb0-9ecc-6375e25a2f26"
-APPLICATION_TOKEN = "AstraCS:XZMZtCrqmsamDKgvLcIweqot:cd533b4dd371118bc3e07fc54f1255abd4c6a8935fe137d7f1133f6c361f74f9"  # Replace with your application token
+APPLICATION_TOKEN = "<YOUR_APPLICATION_TOKEN>"  # Replace with your application token
 ENDPOINT = ""  # Default to FLOW_ID if not set
 
 # Default tweaks
@@ -107,8 +107,15 @@ def main():
                 tweaks=tweaks,
                 application_token=application_token
             )
-            st.success("Flow executed successfully!")
-            st.json(response)
+
+            # Display result in message format
+            if 'response' in response:
+                st.success("Flow executed successfully!")
+                st.write(f"**Response Message:** {response['response']}")
+            else:
+                st.warning("Flow executed, but no 'response' field found.")
+                st.json(response)
+
         except requests.HTTPError as e:
             st.error(f"HTTP error occurred: {e}")
         except json.JSONDecodeError:
