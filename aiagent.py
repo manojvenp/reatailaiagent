@@ -63,16 +63,16 @@ def run_flow(
 
 # Streamlit Chatbot App with Agent Feature
 def main():
-    st.title("Langflow Chatbot with Agent")
-    st.sidebar.title("Settings")
+    st.title(" Chatbot with Agent")
+    #st.sidebar.title("Settings")
 
     # Sidebar inputs
-    application_token = st.sidebar.text_input("Application Token", APPLICATION_TOKEN, type="password")
-    endpoint = st.sidebar.text_input("Endpoint", ENDPOINT or FLOW_ID)
-    tweaks_input = st.sidebar.text_area("Tweaks (JSON)", json.dumps(TWEAKS, indent=2))
+   # application_token = st.sidebar.text_input("Application Token", APPLICATION_TOKEN, type="password")
+   # endpoint = st.sidebar.text_input("Endpoint", ENDPOINT or FLOW_ID)
+    #tweaks_input = st.sidebar.text_area("Tweaks (JSON)", json.dumps(TWEAKS, indent=2))
     
-    uploaded_file = st.sidebar.file_uploader("Upload File (optional)")
-    components = st.sidebar.text_input("Components for File Upload (comma-separated)")
+    #uploaded_file = st.sidebar.file_uploader("Upload File (optional)")
+    #components = st.sidebar.text_input("Components for File Upload (comma-separated)")
 
     # Initialize chat history
     if "messages" not in st.session_state:
