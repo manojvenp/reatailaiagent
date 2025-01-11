@@ -6,7 +6,6 @@ from argparse import RawTextHelpFormatter
 import requests
 from typing import Optional
 import warnings
-import streamlit as st
 try:
     from langflow.load import upload_file
 except ImportError:
@@ -16,7 +15,7 @@ except ImportError:
 BASE_API_URL = "https://api.langflow.astra.datastax.com"
 LANGFLOW_ID = "0796338d-92cd-42ee-bb7f-16374bf023a1"
 FLOW_ID = "ebbc7577-5d82-46b0-86a2-d09ed87f5899"
-APPLICATION_TOKEN = "<AstraCS:ccwhFzZJoQbwKEhbUOfUAOpS:87a102c2427e13b2e47bda8d3cef3e64560c4805886be5f100af165fb468bc91>"
+APPLICATION_TOKEN = "<AstraCS:gbzyvOzjIpXlbIHvNiKKDIlp:066213377115e33c8ee29d5bba99a3dbe8f3d55ed1f5b4d505d651df4c8cba14>"
 ENDPOINT = "" # You can set a specific endpoint name in the flow settings
 
 # You can tweak the flow by adding a tweaks dictionary
