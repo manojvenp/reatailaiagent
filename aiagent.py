@@ -1,3 +1,11 @@
+import streamlit as st
+
+st.title("🎈 Doorsharp Retail AI Agent")
+st.write(
+    "You can query on the current product ranges to find interesting insights from brands such as Ralph Lauren, Jimmy Choo, MichaelKors and Nordstrom Rack."
+)
+# Note: Replace **<YOUR_APPLICATION_TOKEN>** with your actual Application token
+
 # Note: Replace **<YOUR_APPLICATION_TOKEN>** with your actual Application token
 
 import argparse
@@ -6,7 +14,6 @@ from argparse import RawTextHelpFormatter
 import requests
 from typing import Optional
 import warnings
-
 try:
     from langflow.load import upload_file
 except ImportError:
@@ -15,36 +22,37 @@ except ImportError:
 
 BASE_API_URL = "https://api.langflow.astra.datastax.com"
 LANGFLOW_ID = "0796338d-92cd-42ee-bb7f-16374bf023a1"
-FLOW_ID = "5ba09942-3a83-4595-a664-14ade12f8134"
-APPLICATION_TOKEN = "AstraCS:ZUXAWTcFXYdodnMdIYcsjZMC:266882672274485e1a046b741297a6c6f55949c520793ff9941d029732414e46"
-ENDPOINT = ""  # You can set a specific endpoint name in the flow settings
+FLOW_ID = "ebbc7577-5d82-46b0-86a2-d09ed87f5899"
+APPLICATION_TOKEN = "AstraCS:ccwhFzZJoQbwKEhbUOfUAOpS:87a102c2427e13b2e47bda8d3cef3e64560c4805886be5f100af165fb468bc91"
+ENDPOINT = "https://3b0dfb4d-199d-4ec9-893d-515833aa113f-westus3.apps.astra.datastax.com" # You can set a specific endpoint name in the flow settings
 
-# Default tweaks
+# You can tweak the flow by adding a tweaks dictionary
+# e.g {"OpenAI-XXXXX": {"model_name": "gpt-4"}}
 TWEAKS = {
-    "ChatInput-SwYLi": {},
-    "CSVAgent-8XYIT": {},
-    "OpenAIModel-Fouot": {},
-    "ChatOutput-X7ZfJ": {},
-    "CSVAgent-LnypR": {},
+  "Prompt-m9oac": {},
+  "ChatInput-7oqin": {},
+  "ChatOutput-fFbtg": {},
+  "Prompt-yPzh9": {},
+  "TavilyAISearch-Otsxw": {},
+  "OpenAIModel-mQvNb": {},
+  "OpenAIModel-qyNbj": {},
+  "Agent-Nj0pH": {},
+  "Prompt-ntUg4": {},
+  "Prompt-aQnEf": {}
 }
 
-def run_flow(
-    message: str,
-    endpoint: str,
-    output_type: str = "chat",
-    input_type: str = "chat",
-    tweaks: Optional[dict] = None,
-    application_token: Optional[str] = None,
-) -> dict:
+def run_flow(message: str,
+  endpoint: str,
+  output_type: str = "chat",
+  input_type: str = "chat",
+  tweaks: Optional[dict] = None,
+  application_token: Optional[str] = None) -> dict:
     """
     Run a flow with a given message and optional tweaks.
 
     :param message: The message to send to the flow
     :param endpoint: The ID or the endpoint name of the flow
-    :param output_type: The output type (default is 'chat')
-    :param input_type: The input type (default is 'chat')
     :param tweaks: Optional tweaks to customize the flow
-    :param application_token: Application Token for authentication
     :return: The JSON response from the flow
     """
     api_url = f"{BASE_API_URL}/lf/{LANGFLOW_ID}/api/v1/run/{endpoint}"
@@ -54,28 +62,18 @@ def run_flow(
         "output_type": output_type,
         "input_type": input_type,
     }
+    headers = None
     if tweaks:
         payload["tweaks"] = tweaks
-
-    headers = {"Authorization": f"Bearer {application_token}", "Content-Type": "application/json"} if application_token else None
-
-    try:
-        response = requests.post(api_url, json=payload, headers=headers)
-        response.raise_for_status()  # Raise HTTPError for bad responses
-    except requests.exceptions.RequestException as e:
-        raise RuntimeError(f"Request failed: {e}")
-
-    try:
-        return response.json()
-    except json.JSONDecodeError:
-        raise ValueError("Failed to decode JSON response from the API")
+    if application_token:
+        headers = {"Authorization": "Bearer " + application_token, "Content-Type": "application/json"}
+    response = requests.post(api_url, json=payload, headers=headers)
+    return response.json()
 
 def main():
-    parser = argparse.ArgumentParser(
-        description="""Run a flow with a given message and optional tweaks.
+    parser = argparse.ArgumentParser(description="""Run a flow with a given message and optional tweaks.
 Run it like: python <your file>.py "your message here" --endpoint "your_endpoint" --tweaks '{"key": "value"}'""",
-        formatter_class=RawTextHelpFormatter,
-    )
+        formatter_class=RawTextHelpFormatter)
     parser.add_argument("message", type=str, help="The message to send to the flow")
     parser.add_argument("--endpoint", type=str, default=ENDPOINT or FLOW_ID, help="The ID or the endpoint name of the flow")
     parser.add_argument("--tweaks", type=str, help="JSON string representing the tweaks to customize the flow", default=json.dumps(TWEAKS))
@@ -86,34 +84,28 @@ Run it like: python <your file>.py "your message here" --endpoint "your_endpoint
     parser.add_argument("--components", type=str, help="Components to upload the file to", default=None)
 
     args = parser.parse_args()
-
-    # Parse tweaks JSON
     try:
-        tweaks = json.loads(args.tweaks)
+      tweaks = json.loads(args.tweaks)
     except json.JSONDecodeError:
-        raise ValueError("Invalid tweaks JSON string")
+      raise ValueError("Invalid tweaks JSON string")
 
-    # Handle file upload
     if args.upload_file:
         if not upload_file:
             raise ImportError("Langflow is not installed. Please install it to use the upload_file function.")
-        if not args.components:
+        elif not args.components:
             raise ValueError("You need to provide the components to upload the file to.")
-        tweaks = upload_file(file_path=args.upload_file, host=BASE_API_URL, flow_id=args.endpoint, components=args.components, tweaks=tweaks)
+        tweaks = upload_file(file_path=args.upload_file, host=BASE_API_URL, flow_id=ENDPOINT, components=args.components, tweaks=tweaks)
 
-    # Run the flow
-    try:
-        response = run_flow(
-            message=args.message,
-            endpoint=args.endpoint,
-            output_type=args.output_type,
-            input_type=args.input_type,
-            tweaks=tweaks,
-            application_token=args.application_token,
-        )
-        print(json.dumps(response, indent=2))
-    except Exception as e:
-        print(f"Error: {e}")
+    response = run_flow(
+        message=args.message,
+        endpoint=args.endpoint,
+        output_type=args.output_type,
+        input_type=args.input_type,
+        tweaks=tweaks,
+        application_token=args.application_token
+    )
+
+    print(json.dumps(response, indent=2))
 
 if __name__ == "__main__":
     main()
