@@ -66,6 +66,7 @@ def run_flow(
 
 # Streamlit Chatbot App
 def main():
+    st.set_page_config(page_title="Langflow Chatbot", layout="wide")
     st.title("Langflow Chatbot")
     st.sidebar.title("Settings")
 
@@ -81,14 +82,17 @@ def main():
     if "messages" not in st.session_state:
         st.session_state["messages"] = []
 
-    # Display chat history
+    # Display chat messages
+    st.divider()
+    st.markdown("### Chat")
     for message in st.session_state["messages"]:
         if message["role"] == "user":
-            st.markdown(f"**You:** {message['content']}")
+            st.markdown(f"<div style='text-align: right; color: blue;'><b>You:</b> {message['content']}</div>", unsafe_allow_html=True)
         elif message["role"] == "assistant":
-            st.markdown(f"**Assistant:** {message['content']}")
+            st.markdown(f"<div style='text-align: left; color: green;'><b>Assistant:</b> {message['content']}</div>", unsafe_allow_html=True)
 
     # Input form
+    st.divider()
     with st.form("chat_form", clear_on_submit=True):
         user_message = st.text_area("Your message:", key="input_message", placeholder="Type your message here...")
         submit_button = st.form_submit_button("Send")
@@ -136,7 +140,7 @@ def main():
             st.error(f"An unexpected error occurred: {e}")
 
     st.write("---")
-  #  st.caption("Powered by Langflow")
+    st.caption("Powered by Langflow")
 
 if __name__ == "__main__":
     main()
