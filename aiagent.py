@@ -100,8 +100,5 @@ Run it like: python <your file>.py "your message here" --endpoint "your_endpoint
 
     print(json.dumps(response, indent=2))
 
-if __name__ == "__main__":
-    main()
-
         except Exception as e:
             st.error(f"An error occurred: {e}")
