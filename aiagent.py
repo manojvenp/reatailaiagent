@@ -116,10 +116,10 @@ def main():
                 )
 
             # Debugging: Print details of the request
-            st.write("### Debug Info")
-            st.write(f"Endpoint: {endpoint}")
-            st.write(f"Tweaks: {tweaks}")
-            st.write(f"Message: {user_message}")
+            #st.write("### Debug Info")
+            #st.write(f"Endpoint: {endpoint}")
+            #st.write(f"Tweaks: {tweaks}")
+            #st.write(f"Message: {user_message}")
 
             # Run flow
             response = run_flow(
