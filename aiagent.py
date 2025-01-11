@@ -6,7 +6,7 @@ from typing import Optional
 BASE_API_URL = "https://api.langflow.astra.datastax.com"
 LANGFLOW_ID = "0796338d-92cd-42ee-bb7f-16374bf023a1"
 FLOW_ID = "ebbc7577-5d82-46b0-86a2-d09ed87f5899"
-APPLICATION_TOKEN = "AstraCS:ccwhFzZJoQbwKEhbUOfUAOpS:87a102c2427e13b2e47bda8d3cef3e64560c4805886be5f100af165fb468bc91"
+APPLICATION_TOKEN = "AstraCS:ZUXAWTcFXYdodnMdIYcsjZMC:266882672274485e1a046b741297a6c6f55949c520793ff9941d029732414e46"
 ENDPOINT = "https://3b0dfb4d-199d-4ec9-893d-515833aa113f-westus3.apps.astra.datastax.com"  # You can set a specific endpoint name in the flow settings
 
 # Tweaks (custom flow settings)
