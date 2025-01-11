@@ -52,7 +52,10 @@ def run_flow(message: str,
     if application_token:
         headers = {"Authorization": "Bearer " + application_token, "Content-Type": "application/json"}
     response = requests.post(api_url, json=payload, headers=headers)
-    return response.json()
+    if response.status_code == 200:
+        return response.json()
+    else:
+        return {"output_value": "Error: Unable to process your request. Please check the configuration or try again later."}
 
 def main():
     st.title("LangFlow Chatbot Agent")
@@ -91,7 +94,7 @@ def main():
         )
 
         # Extract chatbot response
-        bot_message = response.get("output_value", "Sorry, I couldn't process that.")
+        bot_message = response.get("output_value", "Error: Unable to generate a response.")
         st.session_state.messages.append({"role": "bot", "content": bot_message})
 
     # Display conversation
