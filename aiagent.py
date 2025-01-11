@@ -35,9 +35,10 @@ def run_flow(
     input_type: str = "chat",
     tweaks: Optional[dict] = None,
     application_token: Optional[str] = None,
-) -> dict:
+) -> str:
     """
     Run a flow with a given message and optional tweaks.
+    Returns only the AI response message.
     """
     api_url = f"{BASE_API_URL}/lf/{LANGFLOW_ID}/api/v1/run/{endpoint}"
 
@@ -55,7 +56,11 @@ def run_flow(
             "Content-Type": "application/json",
         }
     response = requests.post(api_url, json=payload, headers=headers)
-    return response.json()
+
+    # Parse the response to extract the AI message
+    response_data = response.json()
+    ai_message = response_data.get("output", {}).get("response", "No AI response received.")
+    return ai_message
 
 # Streamlit App
 st.title("🎈 Doorsharp Retail AI Agent")
@@ -88,25 +93,17 @@ if run_query:
             # Parse custom tweaks
             tweaks = json.loads(custom_tweaks) if custom_tweaks else TWEAKS
 
-            # Run the API flow
-            response = run_flow(
+            # Run the API flow and get the AI response
+            ai_response = run_flow(
                 message=message,
                 endpoint=endpoint,
                 tweaks=tweaks,
                 application_token=application_token.strip(),
             )
 
-            # Extract AI message from the response
-            ai_message = response.get("output", {}).get("response", "No response received.")
-
-            # Display the response in a chat-like interface
-            st.subheader("Chat")
-            st.markdown(f"**You:** {message}")
-            st.markdown(f"**AI:** {ai_message}")
-
-            # Optionally, display raw JSON response
-            with st.expander("Raw JSON Response"):
-                st.json(response)
+            # Display the AI response
+            st.subheader("AI Response")
+            st.markdown(f"**AI:** {ai_response}")
 
         except Exception as e:
             st.error(f"An error occurred: {e}")
