@@ -3,20 +3,19 @@ import requests
 import streamlit as st
 from typing import Optional
 import warnings
+
 try:
     from langflow.load import upload_file
 except ImportError:
     warnings.warn("Langflow provides a function to help you upload files to the flow. Please install langflow to use it.")
     upload_file = None
 
-# Configuration
 BASE_API_URL = "https://api.langflow.astra.datastax.com"
 LANGFLOW_ID = "0796338d-92cd-42ee-bb7f-16374bf023a1"
 FLOW_ID = "64da80f1-f6b7-4fb0-9ecc-6375e25a2f26"
 APPLICATION_TOKEN = "AstraCS:XZMZtCrqmsamDKgvLcIweqot:cd533b4dd371118bc3e07fc54f1255abd4c6a8935fe137d7f1133f6c361f74f9"
 ENDPOINT = ""  # You can set a specific endpoint name in the flow settings
 
-# Tweaks
 TWEAKS = {
     "ChatInput-MzRi4": {},
     "CSVAgent-2XO10": {},
@@ -60,7 +59,6 @@ def run_flow(message: str,
     else:
         return {"error": response.text}
 
-# Streamlit app
 st.set_page_config(page_title="LangFlow Chatbot", page_icon="🤖", layout="centered")
 st.title("🤖 LangFlow Chatbot")
 
@@ -74,13 +72,10 @@ def display_chat_history():
         else:
             st.markdown(f"**Bot:** {entry['message']}")
 
-# Chat interface
 user_input = st.text_input("Enter your message:", "")
-
 if st.button("Send") and user_input.strip():
     st.session_state.chat_history.append({"sender": "user", "message": user_input})
 
-    # Call LangFlow API
     response = run_flow(
         message=user_input,
         endpoint=ENDPOINT or FLOW_ID,
@@ -88,7 +83,6 @@ if st.button("Send") and user_input.strip():
         application_token=APPLICATION_TOKEN
     )
 
-    # Process response
     if "error" in response:
         bot_reply = f"Error: {response['error']}"
     else:
@@ -96,5 +90,4 @@ if st.button("Send") and user_input.strip():
 
     st.session_state.chat_history.append({"sender": "bot", "message": bot_reply})
 
-# Display chat history
 display_chat_history()
