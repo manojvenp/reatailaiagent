@@ -15,7 +15,7 @@ except ImportError:
 BASE_API_URL = "https://api.langflow.astra.datastax.com"
 LANGFLOW_ID = "0796338d-92cd-42ee-bb7f-16374bf023a1"
 FLOW_ID = "5ba09942-3a83-4595-a664-14ade12f8134"
-APPLICATION_TOKEN = "Your_Application_Token_Here"  # Replace with your actual token
+APPLICATION_TOKEN = "AstraCS:ZUXAWTcFXYdodnMdIYcsjZMC:266882672274485e1a046b741297a6c6f55949c520793ff9941d029732414e46"  # Replace with your actual token
 ENDPOINT = FLOW_ID  # Default endpoint to FLOW_ID
 
 # Default tweaks
