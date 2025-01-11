@@ -14,7 +14,7 @@ except ImportError:
 BASE_API_URL = "https://api.langflow.astra.datastax.com"
 LANGFLOW_ID = "0796338d-92cd-42ee-bb7f-16374bf023a1"
 FLOW_ID = "ebbc7577-5d82-46b0-86a2-d09ed87f5899"
-APPLICATION_TOKEN = "<YOUR_APPLICATION_TOKEN>"  # Replace with your actual application token
+APPLICATION_TOKEN = "sk-wKY0kXpf_XxZJSYEyevJXG84D4nbiTEpEbNApd90fmQ"  # Replace with your actual application token
 ENDPOINT = ""  # Optionally set a specific endpoint name
 
 TWEAKS = {
