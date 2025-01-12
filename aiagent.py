@@ -1,9 +1,8 @@
-# Requirements: pip install streamlit streamlit_chat requests langflow -Uq
 import streamlit as st
-import requests
 import json
-import warnings
+import requests
 from typing import Optional
+import warnings
 
 try:
     from langflow.load import upload_file
@@ -18,7 +17,6 @@ FLOW_ID = "64da80f1-f6b7-4fb0-9ecc-6375e25a2f26"
 APPLICATION_TOKEN = "AstraCS:nwgnGlLevedmscQRsGshCtBo:1f12ca247aa4dd200b476f5d10ec5a316baf43841a1a6768fff41602225af265"
 ENDPOINT = ""  # You can set a specific endpoint name in the flow settings
 
-# Tweaks Dictionary
 TWEAKS = {
     "ChatInput-MzRi4": {},
     "CSVAgent-2XO10": {},
@@ -27,7 +25,6 @@ TWEAKS = {
     "CSVAgent-E5Cj5": {}
 }
 
-# Helper function to run flow
 def run_flow(message: str,
              endpoint: str,
              output_type: str = "chat",
@@ -36,63 +33,74 @@ def run_flow(message: str,
              application_token: Optional[str] = None) -> dict:
     """
     Run a flow with a given message and optional tweaks.
+
+    :param message: The message to send to the flow
+    :param endpoint: The ID or the endpoint name of the flow
+    :param tweaks: Optional tweaks to customize the flow
+    :return: The JSON response from the flow
     """
     api_url = f"{BASE_API_URL}/lf/{LANGFLOW_ID}/api/v1/run/{endpoint}"
+
     payload = {
         "input_value": message,
         "output_type": output_type,
         "input_type": input_type,
     }
-    headers = {"Authorization": f"Bearer {application_token}", "Content-Type": "application/json"} if application_token else None
+    headers = None
     if tweaks:
         payload["tweaks"] = tweaks
+    if application_token:
+        headers = {"Authorization": "Bearer " + application_token, "Content-Type": "application/json"}
     response = requests.post(api_url, json=payload, headers=headers)
-    if response.status_code != 200:
-        return {"error": f"Failed to connect to the API: {response.text}"}
     return response.json()
 
-# Streamlit App
-def streamlit_app():
-    st.title("Langflow Streamlit App")
-    st.markdown("Run your Langflow with customized inputs and tweaks.")
+# Streamlit app
+def main():
+    st.set_page_config(page_title="Conversational Retrieval QA Chatbot", page_icon=":speech_balloon:")
 
-    # User Inputs
-    message = st.text_area("Input Message", placeholder="Enter your message here...")
-    endpoint = st.text_input("Flow Endpoint", value=ENDPOINT or FLOW_ID)
-    tweaks = st.text_area("Flow Tweaks (JSON)", value=json.dumps(TWEAKS, indent=2))
-    output_type = st.selectbox("Output Type", options=["chat", "text", "json"], index=0)
-    input_type = st.selectbox("Input Type", options=["chat", "text"], index=0)
-    upload_path = st.file_uploader("Upload File (Optional)", type=["csv", "txt", "json"])
-    components = st.text_input("Components to Upload File To (Optional)")
+    st.title("Conversational Retrieval QA Chatbot")
 
-    # Run Button
-    if st.button("Run Flow"):
+    # Sidebar inputs
+    st.sidebar.header("Flow Configuration")
+    endpoint = st.sidebar.text_input("Endpoint Name/ID", ENDPOINT or FLOW_ID)
+    application_token = st.sidebar.text_input("Application Token", APPLICATION_TOKEN, type="password")
+
+    tweaks_input = st.sidebar.text_area("Tweaks (JSON Format)", json.dumps(TWEAKS, indent=2))
+    try:
+        tweaks = json.loads(tweaks_input)
+    except json.JSONDecodeError:
+        st.sidebar.error("Invalid tweaks JSON format.")
+        tweaks = None
+
+    # Chat interface
+    st.write("### Chat Interface")
+    if "messages" not in st.session_state:
+        st.session_state["messages"] = []
+
+    for msg in st.session_state["messages"]:
+        if msg["role"] == "user":
+            st.write(f"**You:** {msg['content']}")
+        else:
+            st.write(f"**Bot:** {msg['content']}")
+
+    # Input box
+    user_input = st.text_input("Your message:", "", key="user_input")
+    if st.button("Send") and user_input.strip():
+        st.session_state["messages"].append({"role": "user", "content": user_input})
+
         try:
-            parsed_tweaks = json.loads(tweaks)
-        except json.JSONDecodeError:
-            st.error("Invalid JSON in Tweaks field.")
-            return
+            response = run_flow(
+                message=user_input,
+                endpoint=endpoint,
+                tweaks=tweaks,
+                application_token=application_token
+            )
 
-        if upload_path:
-            if not upload_file:
-                st.error("Langflow is not installed. Please install it to use the upload_file function.")
-                return
-            elif not components:
-                st.error("Please provide components to upload the file.")
-                return
-            parsed_tweaks = upload_file(file_path=upload_path, host=BASE_API_URL, flow_id=endpoint, components=components, tweaks=parsed_tweaks)
+            bot_response = response.get("result", "Sorry, no response available.")
+            st.session_state["messages"].append({"role": "bot", "content": bot_response})
 
-        response = run_flow(
-            message=message,
-            endpoint=endpoint,
-            output_type=output_type,
-            input_type=input_type,
-            tweaks=parsed_tweaks,
-            application_token=APPLICATION_TOKEN
-        )
+        except Exception as e:
+            st.error(f"Error: {e}")
 
-        st.json(response)
-
-# Entry Point
 if __name__ == "__main__":
-    streamlit_app()
+    main()
