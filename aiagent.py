@@ -9,7 +9,7 @@ BASE_API_URL = "https://api.langflow.astra.datastax.com"
 LANGFLOW_ID = "0796338d-92cd-42ee-bb7f-16374bf023a1"
 FLOW_ID = "749ae8cd-5da3-48a6-898d-f8176efccde3"
 APPLICATION_TOKEN = os.environ.get("APP_TOKEN")
-ENDPOINT = "" # The endpoint name of the flow
+ENDPOINT = "https://3b0dfb4d-199d-4ec9-893d-515833aa113f-westus3.apps.astra.datastax.com" # The endpoint name of the flow
 
 
 def run_flow(message: str) -> dict:
