@@ -50,10 +50,10 @@ def run_flow(message: str, endpoint: str, output_type: str = "chat", input_type:
     return response.json()
 
 def main():
-    st.title("Langflow Streamlit App")
+    st.title("Langflow Chatbot Agent")
 
     # Input fields for the Streamlit app
-    message = st.text_area("Message", "Enter your message here")
+    message = st.text_area("You:", "Enter your message here")
     endpoint = st.text_input("Endpoint", ENDPOINT or FLOW_ID)
     output_type = st.selectbox("Output Type", ["chat", "text", "json"], index=0)
     input_type = st.selectbox("Input Type", ["chat", "text", "json"], index=0)
@@ -84,8 +84,8 @@ def main():
             tweaks=tweaks
         )
 
-    if st.button("Run Flow"):
-        with st.spinner("Running flow..."):
+    if st.button("Send Message"):
+        with st.spinner("Waiting for response..."):
             try:
                 response = run_flow(
                     message=message,
@@ -95,12 +95,12 @@ def main():
                     tweaks=tweaks,
                     application_token=application_token
                 )
-                st.success("Flow executed successfully!")
+                st.success("Response received!")
                 # Display chatbot-style response with agent name and message
                 if "response" in response and isinstance(response["response"], dict):
                     agent_name = response["response"].get("agent_name", "Agent")
                     agent_message = response["response"].get("message", "No message returned by the agent.")
-                    st.markdown(f"### {agent_name} says:\n{agent_message}")
+                    st.markdown(f"### {agent_name}:\n{agent_message}")
                 else:
                     st.json(response)
             except Exception as e:
