@@ -1,3 +1,56 @@
+import streamlit as st
+import json
+import requests
+import warnings
+from typing import Optional
+
+try:
+    from langflow.load import upload_file
+except ImportError:
+    warnings.warn("Langflow provides a function to help you upload files to the flow. Please install langflow to use it.")
+    upload_file = None
+
+BASE_API_URL = "https://api.langflow.astra.datastax.com"
+LANGFLOW_ID = "0796338d-92cd-42ee-bb7f-16374bf023a1"
+FLOW_ID = "749ae8cd-5da3-48a6-898d-f8176efccde3"
+APPLICATION_TOKEN = "AstraCS:tZSxGCDKMCQPcywroyFqtPYf:cc6d4a7eec6eb9cd6e2e5448135639bca018efb4b56a122c9dc9d486ce0e81a4"
+ENDPOINT = ""  # You can set a specific endpoint name in the flow settings
+
+# You can tweak the flow by adding a tweaks dictionary
+TWEAKS = {
+    "ChatInput-dF1W6": {},
+    "CSVAgent-j14bM": {},
+    "OpenAIModel-jJgAC": {},
+    "ChatOutput-WIoTA": {}
+}
+
+def run_flow(message: str, endpoint: str, output_type: str = "chat", input_type: str = "chat",
+             tweaks: Optional[dict] = None, application_token: Optional[str] = None) -> dict:
+    """
+    Run a flow with a given message and optional tweaks.
+
+    :param message: The message to send to the flow
+    :param endpoint: The ID or the endpoint name of the flow
+    :param tweaks: Optional tweaks to customize the flow
+    :return: The JSON response from the flow
+    """
+    api_url = f"{BASE_API_URL}/lf/{LANGFLOW_ID}/api/v1/run/{endpoint}"
+
+    payload = {
+        "input_value": message,
+        "output_type": output_type,
+        "input_type": input_type,
+    }
+    headers = None
+    if tweaks:
+        payload["tweaks"] = tweaks
+    if application_token:
+        headers = {"Authorization": "Bearer " + application_token, "Content-Type": "application/json"}
+
+    response = requests.post(api_url, json=payload, headers=headers)
+    response.raise_for_status()  # Raise HTTPError for bad responses (4xx and 5xx)
+    return response.json()
+
 def main():
     st.title("Langflow Chatbot Agent")
 
@@ -46,7 +99,7 @@ def main():
                 )
 
                 st.success("Response received!")
-                
+
                 # Display chatbot-style conversation
                 chat_container = st.container()
                 with chat_container:
@@ -65,6 +118,8 @@ def main():
                         st.markdown("**Agent:** Unexpected response format.")
                         st.json(response)
 
+            except requests.exceptions.HTTPError as http_err:
+                st.error(f"HTTP error occurred: {http_err}")
             except Exception as e:
                 st.error(f"An error occurred: {e}")
 
