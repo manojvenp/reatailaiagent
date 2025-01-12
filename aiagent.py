@@ -96,13 +96,16 @@ def main():
                     application_token=application_token
                 )
                 st.success("Response received!")
-                # Display chatbot-style response with agent name and message
-                if "response" in response and isinstance(response["response"], dict):
-                    agent_name = response["response"].get("agent_name", "Agent")
-                    agent_message = response["response"].get("message", "No message returned by the agent.")
-                    st.markdown(f"### {agent_name}:\n{agent_message}")
-                else:
-                    st.json(response)
+                # Display chatbot-style conversation
+                chat_container = st.container()
+                with chat_container:
+                    st.markdown(f"**You:** {message}")
+                    if "response" in response and isinstance(response["response"], dict):
+                        agent_name = response["response"].get("agent_name", "Agent")
+                        agent_message = response["response"].get("message", "No message returned by the agent.")
+                        st.markdown(f"**{agent_name}:** {agent_message}")
+                    else:
+                        st.json(response)
             except Exception as e:
                 st.error(f"An error occurred: {e}")
 
