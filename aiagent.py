@@ -13,7 +13,7 @@ except ImportError:
 BASE_API_URL = "https://api.langflow.astra.datastax.com"
 LANGFLOW_ID = "0796338d-92cd-42ee-bb7f-16374bf023a1"
 FLOW_ID = "749ae8cd-5da3-48a6-898d-f8176efccde3"
-APPLICATION_TOKEN = "AstraCS:tZSxGCDKMCQPcywroyFqtPYf:cc6d4a7eec6eb9cd6e2e5448135639bca018efb4b56a122c9dc9d486ce0e81a4"
+APPLICATION_TOKEN = "<YOUR_APPLICATION_TOKEN>"
 ENDPOINT = ""  # You can set a specific endpoint name in the flow settings
 
 # You can tweak the flow by adding a tweaks dictionary
@@ -96,10 +96,11 @@ def main():
                     application_token=application_token
                 )
                 st.success("Flow executed successfully!")
-                # Display OpenAI agent response if available
+                # Display chatbot-style response with agent name and message
                 if "response" in response and isinstance(response["response"], dict):
+                    agent_name = response["response"].get("agent_name", "Agent")
                     agent_message = response["response"].get("message", "No message returned by the agent.")
-                    st.markdown(f"### AI Response:\n{agent_message}")
+                    st.markdown(f"### {agent_name} says:\n{agent_message}")
                 else:
                     st.json(response)
             except Exception as e:
