@@ -1,4 +1,3 @@
-import requests
 # Note: Replace **<YOUR_APPLICATION_TOKEN>** with your actual Application token
 
 import argparse
