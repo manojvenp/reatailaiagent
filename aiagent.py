@@ -2,9 +2,8 @@ import requests
 import streamlit as st
 import json
 from argparse import RawTextHelpFormatter
-import requests
 from typing import Optional
-import warnings
+
 try:
     from langflow.load import upload_file
 except ImportError:
