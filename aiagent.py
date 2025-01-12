@@ -8,7 +8,7 @@ load_dotenv()
 LANGFLOW_ID = "0796338d-92cd-42ee-bb7f-16374bf023a1"
 FLOW_ID = "749ae8cd-5da3-48a6-898d-f8176efccde3"
 APPLICATION_TOKEN = os.environ.get("APP_TOKEN")
-ENDPOINT = "" # You can set a specific endpoint name in the flow settings
+ENDPOINT = "https://api.langflow.astra.datastax.com/lf/0796338d-92cd-42ee-bb7f-16374bf023a1/api/v1/run/749ae8cd-5da3-48a6-898d-f8176efccde3?stream=false" # You can set a specific endpoint name in the flow settings
 
 def run_flow(message: str) -> dict:
     api_url = f"{BASE_API_URL}/lf/{LANGFLOW_ID}/api/v1/run/{ENDPOINT}"
