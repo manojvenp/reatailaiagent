@@ -96,7 +96,12 @@ def main():
                     application_token=application_token
                 )
                 st.success("Flow executed successfully!")
-                st.json(response)
+                # Display OpenAI agent response if available
+                if "response" in response and isinstance(response["response"], dict):
+                    agent_message = response["response"].get("message", "No message returned by the agent.")
+                    st.markdown(f"### AI Response:\n{agent_message}")
+                else:
+                    st.json(response)
             except Exception as e:
                 st.error(f"An error occurred: {e}")
 
