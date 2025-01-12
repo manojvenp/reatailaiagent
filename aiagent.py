@@ -1,14 +1,21 @@
 import requests
 import streamlit as st
-from dotenv import load_dotenv
-import os
+import json
+from argparse import RawTextHelpFormatter
+import requests
+from typing import Optional
+import warnings
+try:
+    from langflow.load import upload_file
+except ImportError:
+    warnings.warn("Langflow provides a function to help you upload files to the flow. Please install langflow to use it.")
+    upload_file = None
 
-load_dotenv()
 BASE_API_URL = "https://api.langflow.astra.datastax.com"
 LANGFLOW_ID = "0796338d-92cd-42ee-bb7f-16374bf023a1"
 FLOW_ID = "749ae8cd-5da3-48a6-898d-f8176efccde3"
 APPLICATION_TOKEN = os.environ.get("APP_TOKEN")
-ENDPOINT = "https://3b0dfb4d-199d-4ec9-893d-515833aa113f-westus3.apps.astra.datastax.com" # You can set a specific endpoint name in the flow settings
+ENDPOINT = "" # You can set a specific endpoint name in the flow settings
 
 def run_flow(message: str) -> dict:
     api_url = f"{BASE_API_URL}/lf/{LANGFLOW_ID}/api/v1/run/{ENDPOINT}"
